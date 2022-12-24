@@ -1,0 +1,19 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+
+.main {
+    flex-grow:1;
+}
+
+#root{
+    margin: auto;
+    padding: auto;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
+

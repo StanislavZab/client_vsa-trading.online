@@ -1,0 +1,80 @@
+.section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.rowGraphPriceAxis {
+    flex-grow: 1;
+    display: flex;
+}
+
+.rowTimeAxis {
+    flex-grow: 1;
+    /* flex-basis: 20px; */
+    /* background-color: red; */
+    display: flex;
+}
+.graph {
+    display: flex;
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+}
+
+/* .graph canvas {
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+} */
+
+.priceAxis {
+    flex-basis: 50px;
+    position: relative;
+    /* background-color: chocolate; */
+}
+
+.crossHairLineX{
+    position: absolute;
+    cursor: crosshair;
+    border: none;
+    top: 0px;
+    width: 1px;
+    z-index: 0;
+    background: linear-gradient(to bottom, transparent 50%, rgb(161, 135, 135) 50%);
+    background-size: 1px 10px, 1px auto;
+}
+
+.crossHairLineY{
+    position: absolute;
+    cursor: crosshair;
+    border: none;
+    height: 1px;
+    left: 0px;
+    z-index: 0;
+    background: linear-gradient(to right, transparent 50%, rgb(161, 135, 135) 50%);
+    background-size: 10px 1px, 1px auto;
+}
+
+.currentPriceY{
+    position: absolute;
+    cursor: crosshair;
+    border: none;
+    height: 1px;
+    left: 0px;
+    z-index: 0;
+    background: linear-gradient(to right, transparent 50%, rgb(119, 118, 118) 50%);
+    background-size: 5px 1px, 1px auto;
+}
+
+.priceLabel{
+    position: absolute;
+    width: 50px;
+    height: 20px;
+    left: 0px;
+    box-sizing: border-box;
+    border: 1px solid black;
+    color: white;
+    background-color: grey;
+    font-size: 13px;
+    align-items: center;
+    justify-content: center;
+}

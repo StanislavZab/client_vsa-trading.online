@@ -4,7 +4,7 @@ import { store } from '../store';
 
 
 
-export const API_URL = `https://${window.location.host.split(':')[0]}:7000/api`;
+export const API_URL = `https://${window.location.host.split(':')[0]}/api`;
 const $api = axios.create({
     withCredentials: true,
     baseURL: API_URL

@@ -25,19 +25,16 @@ export const socketMiddleware = (): Middleware<{}, RootState> => {
 						}
 				});
 
-				socket.io.on("reconnect", (attempt) => {
-					console.log("reconnect", attempt);
-				});
+				socket.io.on("reconnect", async(attempt) => {
+					console.log("reconnect");
+					const [classList, codeList, resInfoCode, firstCandles] = await SocketService.getFirstParam(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+					await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
 
-				socket.io.on("reconnect_attempt", (attempt) => {
-					console.log("reconnect_attempt", attempt);
-				});
-
-				socket.io.on("reconnect_error", (error) => {
-					console.log("reconnect_error", error);
-				});
-				socket.io.on("reconnect_failed", () => {
-					console.log("reconnect_failed");
+					store.dispatch(setClasses(classList.split(',').slice(0,-1)));
+					store.dispatch(setCodes(codeList.split(',').slice(0,-1)))
+					store.dispatch(setInfoCode(resInfoCode));
+					store.dispatch(setFirstCandles(firstCandles));
+					store.dispatch(setLoad(true));
 				});
 
 				socket.on('newCandle', data => {

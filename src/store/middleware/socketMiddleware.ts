@@ -9,7 +9,7 @@ import SocketService from "service/socket-service";
 
 export const socketMiddleware = (): Middleware<{}, RootState> => {
 	let socket: Socket<ClientToServerEvents, ServerToClientEvents>;
-	const SERVER_URL = 'http://' + window.location.host.split(':')[0] + ':7000'
+	const SERVER_URL = 'https://' + window.location.host.split(':')[0];
 
 
 	return store => next => action => {

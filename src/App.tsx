@@ -10,9 +10,6 @@ import ChartPage from 'pages/ChartPage/ChartPage';
 import LoginPage from 'pages/LoginPage/loginPage';
 
 
-
-
-
 type tokenType = {
 	exp: number,
 	iat: number,
@@ -48,6 +45,7 @@ function App() {
 						
 					}).catch((error) => {
 						dispatch(setErrorSocket(error));
+						dispatch(setLoad(true));
 					})
 			} else {
 				dispatch(setUser({email: decodedToken.email, id: decodedToken.id, role: decodedToken.role.split(' '), isActivated: decodedToken.isActivated}));

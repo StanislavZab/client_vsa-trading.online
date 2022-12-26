@@ -25,6 +25,21 @@ export const socketMiddleware = (): Middleware<{}, RootState> => {
 						}
 				});
 
+				socket.io.on("reconnect", (attempt) => {
+					console.log("reconnect", attempt);
+				});
+
+				socket.io.on("reconnect_attempt", (attempt) => {
+					console.log("reconnect_attempt", attempt);
+				});
+
+				socket.io.on("reconnect_error", (error) => {
+					console.log("reconnect_error", error);
+				});
+				socket.io.on("reconnect_failed", () => {
+					console.log("reconnect_failed");
+				});
+
 				socket.on('newCandle', data => {
 					//console.log('newCandle', data);
 					store.dispatch(addFirstCandle(data.candle))

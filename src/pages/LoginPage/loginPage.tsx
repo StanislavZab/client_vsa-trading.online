@@ -9,7 +9,7 @@ const LoginPage = () => {
     const dispatch = useAppDispatch();
     const [registration, setRegistration] = useState<boolean>(false);
     
-    const login =async (response: any) => {
+    const login = async (response: any) => {
         if(response.data){
             localStorage.setItem('token', response.data.accessToken);
             dispatch(setAuth(true));

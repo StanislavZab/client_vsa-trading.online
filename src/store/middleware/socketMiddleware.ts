@@ -1,7 +1,7 @@
 import { io, Socket } from "socket.io-client";
 import { Middleware } from 'redux';
 import { RootState} from '../../store';
-import { setFirstCandles, setClasses, setCodes, setInfoCode, addFirstCandle, updateFirstCandle } from '../chartSlice';
+import { setFirstCandles, setClasses, setCodes, setInfoCode, addFirstCandle, updateFirstCandle, setSecondCandles, updateSecondCandle } from '../chartSlice';
 import { setErrorSocket, setLoad } from "store/userSlice";
 import { ClientToServerEvents, ServerToClientEvents } from "models/ISocket";
 import SocketService from "service/socket-service";
@@ -27,36 +27,44 @@ export const socketMiddleware = (): Middleware<{}, RootState> => {
 
 				socket.io.on("reconnect", async(attempt) => {
 					console.log("reconnect");
-					const [classList, codeList, resInfoCode, firstCandles] = await SocketService.getFirstParam(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+					const [classList, codeList, resInfoCode, firstCandles, secondCandles] = await SocketService.getFirstParam(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe, chartState.secondTimeframe);
 					await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+					await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.secondTimeframe);
 
 					store.dispatch(setClasses(classList.split(',').slice(0,-1)));
 					store.dispatch(setCodes(codeList.split(',').slice(0,-1)))
 					store.dispatch(setInfoCode(resInfoCode));
 					store.dispatch(setFirstCandles(firstCandles));
+					store.dispatch(setSecondCandles(secondCandles));
 					store.dispatch(setLoad(true));
 				});
 
 				socket.on('newCandle', data => {
-					//console.log('newCandle', data);
-					store.dispatch(addFirstCandle(data.candle))
+					data.interval === chartState.firstTimeframe ?
+					store.dispatch(updateFirstCandle(data.candle)) :
+					data.interval === chartState.secondTimeframe ?
+					store.dispatch(updateSecondCandle(data.candle)) : console.log();
 				})
 
 				socket.on('updateCandle', data => {
-					//console.log('updateCandle', data);
-					store.dispatch(updateFirstCandle(data.candle))
+					data.interval === chartState.firstTimeframe ?
+					store.dispatch(updateFirstCandle(data.candle)) :
+					data.interval === chartState.secondTimeframe ?
+					store.dispatch(updateSecondCandle(data.candle)) : console.log();
 				})
 
 				socket.on('connectedQuik', async(connected) => {
 					if(connected) {
 						if(store.getState().user.errorSocket !== '') {
-							const [classList, codeList, resInfoCode, firstCandles] = await SocketService.getFirstParam(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+							const [classList, codeList, resInfoCode, firstCandles, secondCandles] = await SocketService.getFirstParam(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe, chartState.secondTimeframe);
 							await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+							await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.secondTimeframe);
 
 							store.dispatch(setClasses(classList.split(',').slice(0,-1)));
 							store.dispatch(setCodes(codeList.split(',').slice(0,-1)))
 							store.dispatch(setInfoCode(resInfoCode));
 							store.dispatch(setFirstCandles(firstCandles));
+							store.dispatch(setSecondCandles(secondCandles));
 							store.dispatch(setLoad(true));
 						}
 
@@ -68,13 +76,15 @@ export const socketMiddleware = (): Middleware<{}, RootState> => {
 				})
 			
 				socket.on("connect", async() => {
-					const [classList, codeList, resInfoCode, firstCandles] = await SocketService.getFirstParam(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+					const [classList, codeList, resInfoCode, firstCandles, secondCandles] = await SocketService.getFirstParam(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe, chartState.secondTimeframe);
 					await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+					await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.secondTimeframe);
 
 					store.dispatch(setClasses(classList.split(',').slice(0,-1)));
 					store.dispatch(setCodes(codeList.split(',').slice(0,-1)))
 					store.dispatch(setInfoCode(resInfoCode));
 					store.dispatch(setFirstCandles(firstCandles));
+					store.dispatch(setSecondCandles(secondCandles));
 					store.dispatch(setLoad(true));
 				});
 
@@ -87,10 +97,14 @@ export const socketMiddleware = (): Middleware<{}, RootState> => {
 				(async function() {
 					const resInfoCode = await SocketService.getSecurityInfo(socket, chartState.selectClass, action.payload);
 					const firstCandles = await SocketService.getCandlesFromDataSource(socket, chartState.selectClass, action.payload, chartState.firstTimeframe, 3000);
+					const secondCandles = await SocketService.getCandlesFromDataSource(socket, chartState.selectClass, action.payload, chartState.secondTimeframe, 3000);
 					await SocketService.unsubscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
+					await SocketService.unsubscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.secondTimeframe);
 					await SocketService.subscribeToCandles(socket, chartState.selectClass, action.payload, chartState.firstTimeframe);
+					await SocketService.subscribeToCandles(socket, chartState.selectClass, action.payload, chartState.secondTimeframe);
 
 					store.dispatch(setFirstCandles(firstCandles));
+					store.dispatch(setSecondCandles(secondCandles));
 					store.dispatch(setInfoCode(resInfoCode));
 				})()
 				break;
@@ -105,14 +119,22 @@ export const socketMiddleware = (): Middleware<{}, RootState> => {
 				break;
 			case 'chart/setFirstTimeframe':
 				(async function() {
-					const resInfoCode = await SocketService.getSecurityInfo(socket, chartState.selectClass, chartState.selectCode);
 					const firstCandles = await SocketService.getCandlesFromDataSource(socket, chartState.selectClass, chartState.selectCode, action.payload, 3000);
 					await SocketService.unsubscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.firstTimeframe);
 					console.log('...')
 					await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, action.payload);
 
 					store.dispatch(setFirstCandles(firstCandles));
-					store.dispatch(setInfoCode(resInfoCode));
+				})()
+				break;
+			case 'chart/setSecondTimeframe':
+				(async function() {
+					const secondCandles = await SocketService.getCandlesFromDataSource(socket, chartState.selectClass, chartState.selectCode, action.payload, 3000);
+					await SocketService.unsubscribeToCandles(socket, chartState.selectClass, chartState.selectCode, chartState.secondTimeframe);
+					console.log('...')
+					await SocketService.subscribeToCandles(socket, chartState.selectClass, chartState.selectCode, action.payload);
+
+					store.dispatch(setSecondCandles(secondCandles));
 				})()
 				break;
 		}

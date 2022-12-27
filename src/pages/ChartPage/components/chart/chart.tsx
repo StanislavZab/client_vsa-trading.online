@@ -12,7 +12,7 @@ import { selectChartFirstDataGraph, selectChartInfoCode } from "store/chartSlice
 
 interface chartProps {
     name: string,
-    data: ICandles | undefined,
+    data: ICandles,
     code: string,
     timeframe: number,
     width: number,
@@ -20,7 +20,8 @@ interface chartProps {
 }
 
 const Chart: React.FC<chartProps> = ({name, data, code, timeframe, width, height}) => {
-    const {firstCandles,firstTimeframe} = useAppSelector(selectChartFirstDataGraph);
+    //const {firstCandles,firstTimeframe} = useAppSelector(selectChartFirstDataGraph);
+    const firstCandles = data;
     const infoCode = useAppSelector(selectChartInfoCode);
     
     const [autoPriceScale, setAutoPriceScale] = useState<boolean>(true);                                             //флаг авторасчета диапазона цены

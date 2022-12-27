@@ -5,12 +5,17 @@ import { InfoCode } from "store";
 type TypeSocket = Socket<ClientToServerEvents, ServerToClientEvents>;
 
 class SocketService { 
-    static async getFirstParam(socket: TypeSocket, class_code: string, sec_code: string, tf: number): Promise<[string, string, InfoCode, any]> {
+    static async getFirstParam(socket: TypeSocket, 
+        class_code: string, 
+        sec_code: string, 
+        tf1: number,
+        tf2: number): Promise<[string, string, InfoCode, any, any]> {
         return await Promise.all([
             await SocketService.getClassList(socket),
             await SocketService.getClassSecurities(socket, class_code),
             await SocketService.getSecurityInfo(socket, class_code, sec_code),
-			await SocketService.getCandlesFromDataSource(socket, class_code, sec_code, tf, 3000)
+			await SocketService.getCandlesFromDataSource(socket, class_code, sec_code, tf1, 3000),
+            await SocketService.getCandlesFromDataSource(socket, class_code, sec_code, tf2, 3000)
         ]);
     }
     static async getClassList(socket: TypeSocket): Promise<string> {
